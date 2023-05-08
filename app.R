@@ -5,36 +5,43 @@ library(bslib)
 library(cricketdata)
 library(tidyverse)
 library(DT)
-
+library(shinyjs)
 
 
 #---- outside UI and server ----
-# vector of tournaments
+# load data
+mens_t20_data <- read_rds("data/mens_ball_by_ball_data.rds")
+womens_t20_data <- read_rds("data/womens_ball_by_ball_data.rds")
+
+# vector of tournaments for men and women
 tournaments <- cricsheet_codes
 mens_t20_tournaments <- tournaments |>
   select(code) |>
-  filter(code %in% c("t20s", "it20s", "ipl", "apl", "bbl", "bpl", "cpl", "ctc", "ilt", "ipl", "ipt", "lpl", "msl", "ntb", "psl", "sat", "sma")) |>
+  filter(code %in% c("t20s", "it20s", "ipl", "apl", "bbl", "bpl", "cpl", "ctc", "ilt", "ipl", "ipt", "lpl", "msl", "ntb", "psl", "sat", "sma", "ssm")) |>
   pull(code)
 
+womens_t20_tournaments <- tournaments |>
+  select(code) |>
+  filter(code %in% c("t20s", "blz", "cec", "frb", "wbb", "wcl", "wsl", "wtc")) |>
+  pull(code)
+
+
 #---- functions ---
-# get ball by ball data of a male player. Generates a list where each item is an innings
-find_bbb_male <- function(player_name){
-  innings_tibble <- tibble()
-  
-  for (i in mens_t20_tournaments){
-    x <- fetch_cricsheet(type = "bbb",
-                         gender = "male",
-                         competition = i) |>
-      filter(striker == player_name) |>
-      mutate(tournament = paste0(i))
-    
-    innings_tibble <- rbind(innings_tibble, x)
+# get ball by ball data of a player. Generates a list where each item is an innings
+find_bbb <- function(player_name, gender){
+  if(gender == "male"){
+    x <- mens_t20_data |>
+      filter(striker == player_name)
+  } else if(gender == "female"){
+    x <- womens_t20_data |>
+      filter(striker == player_name)
   }
   
-  y <- split(innings_tibble, f = innings_tibble$match_id)
+  y <- split(x, f = x$match_id)
   
   return(y)
 }
+
 
 # function to filter out wides and put each ball in a column
 condense <- function(x){
@@ -47,12 +54,14 @@ condense <- function(x){
   return(y)
 }
 
+
 # apply condense to items in a list and join the resulting tibbles to create ball by ball data
 career_bbb <- function(innings_list){
   x <- lapply(innings_list, condense)
   y <- reduce(.x = x, .f = full_join)
   return(y)
 }
+
 
 # calculate mean runs scored and mean SR by ball faced
 career_mean_bbb <- function(ball_by_ball_data){
@@ -67,6 +76,7 @@ career_mean_bbb <- function(ball_by_ball_data){
   return(x)
 }
 
+
 # calculate mean runs scored and mean SR by ball faced broken down by tournament
 tournament_mean_bbb <- function(ball_by_ball_data){
   x <- ball_by_ball_data |>
@@ -80,6 +90,7 @@ tournament_mean_bbb <- function(ball_by_ball_data){
   
   return(x)
 }
+
 
 # create a tibble of all the innings a player has played
 innings_table <- function(ball_by_ball_data){
@@ -102,6 +113,7 @@ innings_table <- function(ball_by_ball_data){
   return(y)
 }
 
+
 # calculate balls per boundary
 balls_per_boundary <- function(ball_by_ball_data){
   balls <- ball_by_ball_data[3:ncol(ball_by_ball_data)]
@@ -110,6 +122,7 @@ balls_per_boundary <- function(ball_by_ball_data){
   balls_per_boundary_rate <- round(balls_faced/boundary_count, 2)
   return(balls_per_boundary_rate)
 }
+
 
 # calculate dot ball %
 dot_ball_percentage <- function(ball_by_ball_data){
@@ -122,9 +135,10 @@ dot_ball_percentage <- function(ball_by_ball_data){
 
 
 
-
 #---- UI ----
 ui <- fluidPage(
+  
+  useShinyjs(),
   
   theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#090C9B", secondary = "#3066BE", font_scale = 0.8),
   
@@ -136,11 +150,35 @@ ui <- fluidPage(
     tabPanel(title = "batR",
              fluidRow(
                column(12,
-                      textInput(inputId = "player_selected",
-                                label = "Enter the name of a player",
-                                value = "MEK Hussey"),
-                      helpText("The name of the player must be entered in the form found on scorecards with the player's full initials followed by their surname. E.g. CH Gayle. You can find other examples on ESPN Cricinfo scorecards.")
-               )
+                      br(),
+                      fluidRow(
+                        column(width = 4,
+                               tags$div(textInput(inputId = "player_selected",
+                                                  label = "Enter the name of a player",
+                                                  value = "MEK Hussey"), 
+                                        style = "display:inline-block")),
+                        column(width = 4,
+                               tags$div(radioButtons(inputId = "male_or_female", 
+                                                     label = "Male or Female Player?", 
+                                                     choices = c("male", "female"), 
+                                                     selected = "male",
+                                                     inline = TRUE), 
+                                        style = "display:inline-block"))
+                        ),
+                      br(),
+                      helpText("The name of the player must be entered in the form found on scorecards with the player's full initials followed by their surname. E.g. CH Gayle. You can find other examples on ESPN Cricinfo scorecards."),
+                      br(),
+                      br(),
+                      tags$div(actionButton(inputId = "action", 
+                                            label = "Find data"),
+                               hidden(tags$div(id = "loading_spinner", 
+                                               icon("spinner"), 
+                                               class = "fa-spin", 
+                                               style = "display: inline-block")),
+                               style = "display:inline"),
+                      br(),
+                      uiOutput(outputId = "innings_warning")
+                )
              ),
              
              fluidRow(
@@ -161,6 +199,7 @@ ui <- fluidPage(
                column(12,
                       h3("Career strike rate by ball"),
                       plotOutput(outputId = "ball_by_ball_SR_plot"),
+                      textOutput(outputId = "balls_to_mean_SR"),
                       p("The horizontal line is the player's career strike rate and the black line is a model of how their typical innings progresses (steeper black line = greater acceleration). Where the two lines meet indicates how many balls it takes the player to reach their mean strike rate.")
                )
              ),
@@ -179,7 +218,7 @@ ui <- fluidPage(
              tags$hr(),
              p("batR is a tool to analyse batting data from T20 matches."),
              br(),
-             p("All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. Currently, the app only supports finding data for men's players"),
+             p("All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 4th May 2023."),
              br(),
              h5("Statistics calculated"),
              tags$hr(),
@@ -197,7 +236,6 @@ ui <- fluidPage(
              h5("Coming soon"),
              tags$hr(),
              tags$ul(
-               tags$li("Adding support for women's cricket stats (unfortunately, due to the way the functions that support this app work, only men's stats are currently supported)"),
                tags$li("Interactive plots"),
                tags$li("Selecting a player without needing their initials"),
                tags$li("Side-by-side player comparisons")
@@ -217,13 +255,35 @@ server <- function(input, output){
   
   #---- reactives ----
   #--- get ball by ball data for the player selected ---
-  innings_list <- reactive({
-    find_bbb_male(input$player_selected)
+  # when the find data button is clicked, give the user feedback
+  observeEvent(input$action, {
+    disable(id = "action")
+    show(id = "loading_spinner")
+    delay(5000, {
+      enable(id = "action")
+      hide(id = "loading_spinner")
+      })
+  })
+  
+  # get the data
+  innings_list <- eventReactive(input$action, {
+    find_bbb(player_name = input$player_selected, gender = input$male_or_female)
+  })
+  
+  # render a warning when innings_list is length 0
+  output$innings_warning <- renderUI({
+    if(length(innings_list()) < 1){
+      div(icon("exclamation-circle"), "Warning: please check that you have selected the correct gender for the player or check the spelling of their name", style = "color:red")
+    } else{
+      div("", style = "color:red")
+    }
   })
   
   #--- create ball by ball data ---
   ball_by_ball_data <- reactive({
-    career_bbb(innings_list())
+    if(length(innings_list()) > 0){
+      career_bbb(innings_list())
+      }
   })
   
   #--- mean runs scored and mean SR by ball faced ---
@@ -248,7 +308,7 @@ server <- function(input, output){
   
   #--- calculate mean runs scored ---
   mean_runs_scored <- reactive({
-    round(sum(player_innings()$`total scored`)/sum(player_innings()$`balls faced`)*100, 2)
+    round(mean(player_innings()$`total scored`), 2)
   })
   
   #--- calculate median runs scored ---
@@ -271,7 +331,7 @@ server <- function(input, output){
     round(mean(player_innings()$`balls faced`), 2)
   })
   
-  # calculate median balls faced ---
+  #--- calculate median balls faced ---
   median_balls_faced <- reactive({
     median(player_innings()$`balls faced`)
   })
@@ -281,9 +341,14 @@ server <- function(input, output){
     balls_per_boundary(ball_by_ball_data())
   })
   
-  # calculate dot ball percentage
+  #--- calculate dot ball percentage ---
   dbp <- reactive({
     dot_ball_percentage(ball_by_ball_data())
+  })
+  
+  #--- calculate balls taken to reach mean SR ---
+  balls_to_reach_mean_SR <- reactive({
+    round((mean_SR()-model()$coefficients[1])/model()$coefficients[2], 1)
   })
   
   
@@ -305,7 +370,7 @@ server <- function(input, output){
   #--- ball by ball table ---
   output$ball_by_ball_table <- renderDataTable({
     ball_by_ball_mean()
-  }, options = list(pageLength = 15))
+  }, options = list(pageLength = 10), rownames = F)
   
   
   #--- ball by ball SR plot ---
@@ -323,6 +388,12 @@ server <- function(input, output){
   })
   
   
+  #--- balls to reach mean SR ---
+  output$balls_to_mean_SR <- renderText({
+    paste("On average", input$player_selected, "takes", balls_to_reach_mean_SR(), "balls to reach their mean SR.")
+  })
+  
+  
   #--- ball by ball SR split by tournament ---
   output$tournament_ball_by_ball_SR_plot <- renderPlot({
     ggplot(tournament_ball_by_ball_mean()) +
@@ -335,7 +406,9 @@ server <- function(input, output){
             panel.background = element_rect(fill = "#FBFFF1"),
             axis.text = element_text(colour = "black"),
             axis.line = element_line(colour = "black"),
-            axis.ticks = element_line(colour = "black"))
+            axis.ticks = element_line(colour = "black"),
+            legend.background = element_blank(),
+            legend.position = "top")
   })
 }
 
