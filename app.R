@@ -6,6 +6,7 @@ library(cricketdata)
 library(tidyverse)
 library(DT)
 library(shinyjs)
+library(plotly)
 
 
 #---- outside UI and server ----
@@ -26,113 +27,30 @@ womens_t20_tournaments <- tournaments |>
   pull(code)
 
 
-#---- functions ---
+#--- functions ---
 # get ball by ball data of a player. Generates a list where each item is an innings
-find_bbb <- function(player_name, gender){
-  if(gender == "male"){
-    x <- mens_t20_data |>
-      filter(striker == player_name)
-  } else if(gender == "female"){
-    x <- womens_t20_data |>
-      filter(striker == player_name)
-  }
-  
-  y <- split(x, f = x$match_id)
-  
-  return(y)
-}
+source("functions/find_bbb.R")
 
-
-# function to filter out wides and put each ball in a column
-condense <- function(x){
-  y <- x |>
-    select(match_id, runs_off_bat, wides, tournament) |>
-    filter(is.na(wides)) |>
-    select(!wides) |>
-    mutate(ball = row_number()) |>
-    pivot_wider(names_from = ball, values_from = runs_off_bat)
-  return(y)
-}
-
-
-# apply condense to items in a list and join the resulting tibbles to create ball by ball data
-career_bbb <- function(innings_list){
-  x <- lapply(innings_list, condense)
-  y <- reduce(.x = x, .f = full_join)
-  return(y)
-}
-
+# two functions: one to filter out wides and put each ball in a column for an innings, one to apply that function to a list of innings and join the tibbles to create ball by ball data
+source("functions/career_bbb.R")
 
 # calculate mean runs scored and mean SR by ball faced
-career_mean_bbb <- function(ball_by_ball_data){
-  x <- ball_by_ball_data |>
-    select(!match_id & !tournament) |>
-    summarise(across(where(is.numeric), mean, na.rm = T)) |>
-    mutate(across(where(is.numeric), ~round(.x, 2))) |>
-    pivot_longer(cols = everything(), names_to = "ball", values_to = "mean scored") |>
-    mutate(ball = as.numeric(ball),
-           "mean SR" = `mean scored`*100)
-  
-  return(x)
-}
-
+source("functions/career_mean_bbb.R")
 
 # calculate mean runs scored and mean SR by ball faced broken down by tournament
-tournament_mean_bbb <- function(ball_by_ball_data){
-  x <- ball_by_ball_data |>
-    group_by(tournament) |>
-    select(!match_id) |>
-    summarise(across(where(is.numeric), mean, na.rm = T)) |>
-    mutate(across(where(is.numeric), ~round(.x, 2))) |>
-    pivot_longer(cols = 2:(ncol(ball_by_ball_data)-1), names_to = "ball", values_to = "mean scored") |>
-    mutate(ball = as.numeric(ball),
-           "mean SR" = `mean scored`*100)
-  
-  return(x)
-}
-
+source("functions/tournament_mean_bbb.R")
 
 # create a tibble of all the innings a player has played
-innings_table <- function(ball_by_ball_data){
-  x <- ball_by_ball_data |>
-    pivot_longer(cols = 3:ncol(ball_by_ball_data), names_to = "ball", values_to = "runs per ball") |>
-    drop_na(`runs per ball`) |>
-    mutate(match_id = as_factor(match_id)) |>
-    group_by(match_id) |>
-    summarise("total scored" = round(sum(`runs per ball`), 2))
-  
-  y <- ball_by_ball_data |>
-    pivot_longer(cols = 3:ncol(ball_by_ball_data), names_to = "ball", values_to = "runs scored") |>
-    drop_na(`runs scored`) |>
-    count(as_factor(match_id)) |>
-    rename(match_id = `as_factor(match_id)`,
-           "balls faced" = n) |>
-    left_join(x) |>
-    mutate(SR = round(`total scored`/`balls faced`*100, 2))
-  
-  return(y)
-}
-
+source("functions/innings_table.R")
 
 # calculate balls per boundary
-balls_per_boundary <- function(ball_by_ball_data){
-  balls <- ball_by_ball_data[3:ncol(ball_by_ball_data)]
-  balls_faced <- sum(balls, na.rm = T)
-  boundary_count <- sum(balls == 4 | balls == 6, na.rm = T)
-  balls_per_boundary_rate <- round(balls_faced/boundary_count, 2)
-  return(balls_per_boundary_rate)
-}
-
+source("functions/balls_per_boundary.R")
 
 # calculate dot ball %
-dot_ball_percentage <- function(ball_by_ball_data){
-  balls <- ball_by_ball_data[3:ncol(ball_by_ball_data)]
-  dot_ball_count <- sum(balls == 0, na.rm = T)
-  balls_faced <- sum(balls, na.rm = T)
-  dot_ball_percent <- round(dot_ball_count/balls_faced*100, 2)
-  return(dot_ball_percent)
-}
+source("functions/dot_ball_percentage.R")
 
+# spider plot
+source("functions/spider_plot.R")
 
 
 #---- UI ----
@@ -140,7 +58,7 @@ ui <- fluidPage(
   
   useShinyjs(),
   
-  theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#090C9B", secondary = "#3066BE", font_scale = 0.8),
+  theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#1A281F", secondary = "#FFA630", font_scale = 0.8),
   
   titlePanel("batR"),
   
@@ -177,13 +95,15 @@ ui <- fluidPage(
                                                style = "display: inline-block")),
                                style = "display:inline"),
                       br(),
-                      uiOutput(outputId = "innings_warning")
+                      uiOutput(outputId = "innings_warning"),
+                      br()
                 )
              ),
              
              fluidRow(
                column(12,
                       h3("Summary statistics"),
+                      plotOutput(outputId = "summary_plot"),
                       tableOutput(outputId = "summary_table")
                )
              ),
@@ -207,7 +127,7 @@ ui <- fluidPage(
              fluidRow(
                column(12,
                       h3("Career strike rate by ball broken down by tournament"),
-                      plotOutput("tournament_ball_by_ball_SR_plot"),
+                      plotlyOutput("tournament_ball_by_ball_SR_plot"),
                       p("The horizontal line is the player's career strike rate and the other lines are models of how their typical innings progresses at each tournament.")
                )
              )
@@ -230,7 +150,9 @@ ui <- fluidPage(
                tags$li("Mean SR: the usual career strike rate of player."),
                tags$li("Median SR: just as with runs, strike rates can be inflated by a few extraordinary knocks. Knowing what the median is gives us a better idea of what a player's strike rate is when they get out. Batter's with low medians could be chewing up a lot of balls and scoring not many."),
                tags$li("Mean balls faced: the number of balls faced a player faces per innings. If a batter tends to face few deliveries, they will ideally have high strike rates."),
-               tags$li("Median balls faced: another measure for the number of balls a player faces per innings.")
+               tags$li("Median balls faced: another measure for the number of balls a player faces per innings."),
+               tags$li("Acceleration: how quickly a batter's strike rate increases as the innings goes on"),
+               tags$li("BASRA: stands for batting average and strike rate aggregate. As runs aren't the only currency in T20 cricket, BASRA helps us compare two players by taking into account strike rates too.")
              ),
              br(),
              h5("Coming soon"),
@@ -284,6 +206,11 @@ server <- function(input, output){
     if(length(innings_list()) > 0){
       career_bbb(innings_list())
       }
+  })
+  
+  #--- number of innings played ---
+  innings_n <- reactive({
+    nrow(ball_by_ball_data())
   })
   
   #--- mean runs scored and mean SR by ball faced ---
@@ -351,20 +278,47 @@ server <- function(input, output){
     round((mean_SR()-model()$coefficients[1])/model()$coefficients[2], 1)
   })
   
+  #--- BASRA ---
+  basra <- reactive({
+    mean_runs_scored() + mean_SR()
+  })
   
-  #---- outputs ----
   #--- summary table ---
-  output$summary_table <- renderTable({
-    cbind(boundary_rate(), dbp(), mean_runs_scored(), median_runs_scored(), mean_SR(), median_SR(), mean_balls_faced(), median_balls_faced()) |>
-      `colnames<-`(c("Ball per boundary",
+  player_summary_table <- reactive({
+    tibble(innings_n(), boundary_rate(), dbp(), 
+          mean_runs_scored(), median_runs_scored(), 
+          mean_SR(), median_SR(), 
+          mean_balls_faced(), median_balls_faced(),
+          unname(model()$coefficients[2]), basra())  |>
+      `colnames<-`(c("Innings",
+                     "Balls per boundary",
                      "Dot ball %",
                      "Mean runs scored",
                      "Median runs scored",
                      "Mean strike rate",
                      "Median strike rate",
                      "Mean balls faced",
-                     "Median balls faced"))
+                     "Median balls faced",
+                     "Acceleration",
+                     "BASRA"))
   })
+  
+  #---- outputs ----
+  output$a <- renderText({
+    paste("the player has played", innings_n(), "innings")
+  })
+  
+  #--- summary table ---
+  output$summary_table <- renderTable({
+    player_summary_table()
+  })
+  
+  
+  #--- summary plot ---
+  output$summary_plot <- renderPlot({
+    spider_plot(player_summary_table(), player_innings())
+  })
+  
   
   
   #--- ball by ball table ---
@@ -395,9 +349,8 @@ server <- function(input, output){
   
   
   #--- ball by ball SR split by tournament ---
-  output$tournament_ball_by_ball_SR_plot <- renderPlot({
-    ggplot(tournament_ball_by_ball_mean()) +
-      geom_point(aes(ball, `mean SR`, colour = tournament), size = 0.7) +
+  output$tournament_ball_by_ball_SR_plot <- renderPlotly({
+    ggplotly(ggplot(tournament_ball_by_ball_mean()) +
       geom_smooth(aes(ball, `mean SR`, colour = tournament), method = "lm", se = F) +
       geom_hline(yintercept = mean_SR(), linetype = "dashed", alpha = 0.5) +
       scale_x_continuous(n.breaks = nrow(ball_by_ball_mean())/5) +
@@ -408,7 +361,7 @@ server <- function(input, output){
             axis.line = element_line(colour = "black"),
             axis.ticks = element_line(colour = "black"),
             legend.background = element_blank(),
-            legend.position = "top")
+            legend.position = "top"))
   })
 }
 
