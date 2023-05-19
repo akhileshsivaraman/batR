@@ -2,7 +2,7 @@
 library(tidyverse)
 library(fmsb)
 
-spider_plot <- function(player_summary_table, player_innings) {
+spider_plot <- function(player_summary_table, player_innings, title = NULL) {
   player_summary_table <- player_summary_table |>
     select(c("Balls per boundary", "Dot ball %", "Median runs scored", "Median strike rate", "Acceleration", "BASRA"))
   
@@ -25,6 +25,5 @@ spider_plot <- function(player_summary_table, player_innings) {
              pfcol = alpha("#6A8E7F", 0.5),
              pcol = "#6A8E7F",
              vlabels = c("Balls per boundary", "Dot ball %", "Median runs scored", "Median SR", "Acceleration", "BASRA"), 
-             vlcex = 1)
+             vlcex = 1.2, title = title)
 }
-# might need to use paxislabels?

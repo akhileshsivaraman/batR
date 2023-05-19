@@ -1,5 +1,5 @@
 #---- function to filter out wides and put each ball in a column----
-condense <- function(x){
+condense_career <- function(x){
   y <- x |>
     select(match_id, runs_off_bat, wides, tournament) |>
     filter(is.na(wides)) |>
@@ -10,9 +10,9 @@ condense <- function(x){
 }
 
 
-#---- apply condense to items in a list and join the resulting tibbles to create ball by ball data ----
+#---- apply condense_career to items in a list and join the resulting tibbles to create ball by ball data ----
 career_bbb <- function(innings_list){
-  x <- lapply(innings_list, condense)
+  x <- lapply(innings_list, condense_career)
   y <- reduce(.x = x, .f = full_join)
   return(y)
 }
