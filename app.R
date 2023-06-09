@@ -9,7 +9,7 @@ library(tidyverse)
 library(DT)
 library(shinyjs)
 library(plotly)
-
+library(shiny.semantic)
 
 #---- load data ----
 mens_t20_data <- read_rds("data/mens_ball_by_ball_data.rds")
@@ -72,174 +72,216 @@ source("functions/spider_plot_by_phase.R")
 source("functions/find_initials.R")
 
 
+
+
 #---- UI ----
-ui <- fluidPage(
+ui <- semanticPage(
   title = "batR",
+  
+  tags$head(
+    tags$link(rel = "stylesheet", href = "www/stylesheet.css")
+  ),
   
   useShinyjs(),
   
-  theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#1A281F", secondary = "#FFA630", font_scale = 0.8),
-  
   titlePanel("batR"),
   
-  tabsetPanel(
-    type = "tabs",
-    
-    #---- batR ----
-    tabPanel(title = "batR",
-             fluidRow(
-               column(12,
-                      br(),
-                      fluidRow(
-                        column(width = 4,
-                               tags$div(textInput(inputId = "player_selected",
-                                                  label = "Search for a player",
-                                                  placeholder = "E.g. MEK Hussey"))),
-                        column(width = 4,
-                               tags$div(radioButtons(inputId = "male_or_female", 
-                                                     label = "Male or Female Player?", 
-                                                     choices = c("male", "female"), 
-                                                     selected = "male",
-                                                     inline = TRUE)))
-                        ),
-                      
-                      helpText("The name of the player must be entered in the form of their full initials + surname. E.g. `CH Gayle`. You can search for a player of interest's name in this form on the Find Player page."),
-                      br(),
-                      tags$div(actionButton(inputId = "find_data", 
-                                            label = "Find data"),
-                               hidden(tags$div(id = "loading_spinner", 
-                                               icon("spinner"), 
-                                               class = "fa-spin", 
-                                               style = "display: inline-block")),
-                               style = "display:inline"),
-                      br(),
-                      uiOutput(outputId = "innings_warning"),
-                      br()
-                )
-             ),
+  tabset(
+    menu_class = "ui secondary pointing menu",
+    tabs = 
+      list(
+        list(menu = "batR",
+             content = 
+               div(class = "ui basic segment",
+                 div(class = "ui raised segment",
+                   fluidRow(
+                   column(12,
+                          div(class = "ui olive top attached label",
+                            h3("Player search")
+                          ),
+                          br(),
+                          br(),
+                          div(
+                            fluidRow(
+                              div(class = "ui grid",
+                                  div(class = "two column row",
+                                      div(class = "eight wide column",
+                                          textInput(inputId = "player_selected",
+                                                    label = "Search for a player",
+                                                    placeholder = "E.g. MEK Hussey")),
+                                      div(class = "eight wide column",
+                                          multiple_radio(input_id = "male_or_female", 
+                                                         label = "Male or female player?",
+                                                         choices = c("male", "female"), 
+                                                         selected = "male",
+                                                         type = "radio",
+                                                         position = "inline"))
+                                  )
+                              )
+                            )
+                          ),
+                          helpText("The name of the player must be entered in the form of their full initials + surname. E.g. `CH Gayle`. You can search for a player of interest's name in this form on the Find Player page."),
+                          br(),
+                          br(),
+                          div(actionButton(inputId = "find_data", 
+                                           label = "Find data",
+                                           class = "ui orange button"),
+                                   hidden(div(id = "loading_spinner", 
+                                              class = "ui active inline loader", 
+                                              style = "display: inline-block")),
+                                   style = "display:inline"),
+                          br(),
+                          uiOutput(outputId = "innings_warning"),
+                          br()
+                    )
+                 )
+                 ),
+            
+                 div(class = "ui raised segment",
+                   fluidRow(
+                   column(12,
+                          div(class = "ui olive top attached label",
+                              h3("Career statistics")
+                          ),
+                          br(),
+                          h4("Career Summary"),
+                          div(class = "ui primary placeholder segment",
+                            div(plotOutput(outputId = "career_summary_plot"))
+                          ),
+                          tableOutput(outputId = "career_summary_table"),
+                    )
+                  ),
              
-             fluidRow(
-               column(12,
-                      h3("Career statistics"),
-                      tags$hr(),
-                      h4("Career Summary"),
-                      plotOutput(outputId = "career_summary_plot"),
-                      tableOutput(outputId = "career_summary_table"),
-               )
-             ),
+                   fluidRow(
+                     column(12,
+                            h4("Breakdown player statistics by:"),
+                            tags$div(selectInput(inputId = "stats_breakdown_option",
+                                                 label = "Options",
+                                                 choices = c("None selected", "Tournament", "Phase"),
+                                                 selected = "None selected",
+                                                 multiple = F),
+                                 hidden(tags$div(id = "loading_spinner_breakdown_option", 
+                                                 class = "ui active inline loader",
+                                                 style = "display: inline-block")),
+                                 style = "display:inline"),
+                            br(),
+                            conditionalPanel(condition = "input.stats_breakdown_option == 'Tournament'",
+                                             h5("Tournament"),
+                                             plotOutput(outputId = "tournament_summary_plots"),
+                                             tableOutput(outputId = "tournament_summary_table")
+                                             ),
+                            conditionalPanel(condition = "input.stats_breakdown_option == 'Phase'",
+                                             h5("Phase"),
+                                             plotOutput(outputId = "phase_summary_plots"),
+                                             tableOutput(outputId = "phase_summary_table")
+                                             )
+                      )
+                    )
+                 ),
              
-             fluidRow(
-               column(12,
-                      h4("Breakdown player statistics by:"),
-                      tags$div(selectInput(inputId = "stats_breakdown_option",
-                                           label = "Options",
-                                           choices = c("None selected", "Tournament", "Phase"),
-                                           selected = "None selected",
-                                           multiple = F),
-                               hidden(tags$div(id = "loading_spinner_breakdown_option", 
-                                               icon("spinner"), 
-                                               class = "fa-spin", 
-                                               style = "display: inline-block")),
-                               style = "display:inline"),
-                      conditionalPanel(condition = "input.stats_breakdown_option == 'Tournament'",
-                                       h5("Tournament"),
-                                       plotOutput(outputId = "tournament_summary_plots"), # spider plots by tournament
-                                       tableOutput(outputId = "tournament_summary_table") # metrics by tournament
-                                       ),
-                      conditionalPanel(condition = "input.stats_breakdown_option == 'Phase'",
-                                       h5("Phase"),
-                                       plotOutput(outputId = "phase_summary_plots"),
-                                       tableOutput(outputId = "phase_summary_table"),
-                                       )
-               )
-             ),
-             
-             fluidRow(
-               column(12,
-                      h3("Ball by ball analysis"),
-                      tags$hr()
-               )
-             ),
-             
-             fluidRow(
-               column(4,
-                      h4("Career ball by ball analysis"),
-                      dataTableOutput(outputId = "ball_by_ball_table")
+             div(class = "ui raised segment",
+               fluidRow(
+                 column(12,
+                        div(class = "ui olive top attached label",
+                            h3("Ball by ball analysis")
+                        )
+                 )
                ),
-               column(8,
-                      h4("Career strike rate by ball"),
-                      plotOutput(outputId = "ball_by_ball_SR_plot"),
-                      textOutput(outputId = "balls_to_mean_SR"),
-                      p("The horizontal line is the player's career strike rate and the black line is a model of how their typical innings progresses (steeper black line = greater acceleration). Where the two lines meet indicates how many balls it takes the player to reach their mean strike rate.")
-               )
-             ),
-             
-             fluidRow(
-               column(12,
-                      h4("Strike rate by ball across tournaments"),
-                      plotlyOutput("tournament_ball_by_ball_SR_plot"),
-                      p("The horizontal line is the player's career strike rate and the other lines are models of how their typical innings progresses at each tournament.")
-               )
-             )
-            ),
-    
-    #---- Find Player ----
-    tabPanel(title = "Find Player",
-             h3("Find Player"),
-             sidebarLayout(
-               sidebarPanel(
-                 p("On this page, you can search for the initials of a player whose stats you would like to analyse. You can type in the full name of the player or just their surname and the table opposite will give you their name in the form of initials + surname, which you will need to use batR."),
-                 textInput(inputId = "player_to_find", 
-                           label = "Search for a player's initials",
-                           placeholder = "E.g. `Perry`, `E Perry` or `Ellyse Perry`"),
-                 actionButton(inputId = "find_player",
-                              label = "Find player"),
-                 hidden(tags$div(id = "loading_spinner_2", 
-                                 icon("spinner"), 
-                                 class = "fa-spin", 
-                                 style = "display: inline-block"))
+               br(),
+               br(),
+               div(class = "ui grid",
+                 div(class = "two column row",
+                     div(class = "six wide column",
+                         div(h4("Career ball by ball analysis"),
+                             div(class = "ui primary placeholder segment",
+                                 dataTableOutput(outputId = "ball_by_ball_table")))),
+                     div(class = "ten wide column",
+                         div(h4("Career strike rate by ball"),
+                             p("The horizontal line is the player's career strike rate and the black line is a model of how their typical innings progresses (steeper black line = greater acceleration). Where the two lines meet indicates how many balls it takes the player to reach their mean strike rate."),
+                             div(class = "ui primary placeholder segment",
+                                 plotOutput(outputId = "ball_by_ball_SR_plot"),
+                                 textOutput(outputId = "balls_to_mean_SR"))))
+                  )
                ),
+               br(),
+               fluidRow(
+                     column(12,
+                            h4("Strike rate by ball across tournaments"),
+                            p("The horizontal line is the player's career strike rate and the other lines are models of how their typical innings progresses at each tournament."),
+                            div(class = "ui primary placeholder segment",
+                                plotlyOutput("tournament_ball_by_ball_SR_plot")
+                            )
+                      )
+               )
+            )
+             ),
+             id = "batR_tab"
+        ),
+        
+        list(menu = "Find Player",
+             content = 
+               div(class = "ui raised segment",
+                 h3("Find Player"),
+                 sidebar_layout(
+                   sidebar_panel(
+                     p("On this page, you can search for the initials of a player whose stats you would like to analyse. You can type in the full name of the player or just their surname and the table opposite will give you their name in the form of initials + surname, which you will need to use batR."),
+                     textInput(inputId = "player_to_find", 
+                               label = "Search for a player's initials",
+                               placeholder = "E.g. `Perry`, `E Perry` or `Ellyse Perry`"),
+                     br(),
+                     actionButton(inputId = "find_player",
+                                  label = "Find player",
+                                  class = "ui orange button"),
+                     hidden(tags$div(id = "loading_spinner_2", 
+                                     class = "ui active inline loader",
+                                     style = "display: inline-block"))
+                  ),
                
-               mainPanel(
+               main_panel(
                  h4("Search results"),
                  tableOutput(outputId = "players_found_table"),
                  uiOutput(outputId = "players_found_warning")
                )
              )
-      
-    ),
-    
-    #---- About ----
-    tabPanel(title = "About",
-             h3("About"),
-             tags$hr(),
-             p("batR is a tool to analyse batting data from T20 matches."),
-             p("All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 4th May 2023."),
-             br(),
-             h5("Statistics calculated"),
-             tags$hr(),
-             tags$ul(
-               tags$li("Ball per boundary: quite simply in T20 cricket, the team that hits the most boundaries tends to win."),
-               tags$li("Dot ball percentage: with only 120 balls to score from, it's critical that batters score from as many balls as possible, even if it's just 1 run. Losing sides often have high dot ball percentages."),
-               tags$li("Mean runs: we don't calculate the traditional batting average here. We calculate the mean number of runs scored per innings. The batting average we generally use in cricket is a measure of how many runs a batter scores per dismissal but when it's a new game, you don't get to carry over your score from the last game if you were not out so for many players the idea of how many runs they score per game is inflated."),
-               tags$li("Median runs: mean runs scored tells us an average of how many runs a player score per innings but it's not a perfect metric. The number of runs scored by players fluctuates so some averages are propped up by a handful of brilliant innings, which masks a lot of low scores. The median gives us a better idea of how consistent the batter is by telling us what 50% of the scores are greater (or less) than."),
-               tags$li("Mean SR: the usual career strike rate of player."),
-               tags$li("Median SR: just as with runs, strike rates can be inflated by a few extraordinary knocks. Knowing what the median is gives us a better idea of what a player's strike rate is when they get out. Batter's with low medians could be chewing up a lot of balls and scoring not many."),
-               tags$li("Mean balls faced: the number of balls faced a player faces per innings. If a batter tends to face few deliveries, they will ideally have high strike rates."),
-               tags$li("Median balls faced: another measure for the number of balls a player faces per innings."),
-               tags$li("Acceleration: how quickly a batter's strike rate increases as the innings goes on"),
-               tags$li("BASRA: stands for batting average and strike rate aggregate. As runs aren't the only currency in T20 cricket, BASRA helps us compare two players by taking into account strike rates too.")
              ),
-             br(),
-             h5("Coming soon"),
-             tags$hr(),
-             tags$ul(
-               tags$li("Interactive plots"),
-               tags$li("Further breakdowns of a player's stats"),
-               tags$li("Side-by-side player comparisons")
-             )
-            )
-    
+             id = "Find_Player_tab"
+          ),
+        
+        list(menu = "About",
+             content = 
+               div(class = "ui raised segment",
+                   h3("About"),
+                   tags$hr(),
+                   p("batR is a tool to analyse batting data from T20 matches."),
+                   p("With big money being poured into T20 cricket around the world, using data to improve decision-making is becoming more and more important to acquire the right players and set them up for success. Similarly, for the armchair experts, there is more data than ever to form opinions grounded in reality rather than a handful of exceptions that stick in your mind. But not everyone has the technical background or resources to analyse all the data available. batR is for the key decision-makers and fans alike whether you're settling a debate with your mates, sitting at the auction table or picking your country's best 15 for the World Cup, batR is a tool for anyone to analyse batting statistics and compare players.
+                     
+                     To use batR, simply enter the name of a player in the form initials + surname. The app then computes summary statistics for the player as well as their ball by ball statistics. The data used are up to date as of 4th May 2023."),
+                   br(),
+                   h5("Statistics calculated"),
+                   tags$hr(),
+                   tags$ul(
+                     tags$li("Ball per boundary: quite simply in T20 cricket, the team that hits the most boundaries tends to win."),
+                     tags$li("Dot ball percentage: with only 120 balls to score from, it's critical that batters score from as many balls as possible, even if it's just 1 run. Losing sides often have high dot ball percentages."),
+                     tags$li("Mean runs: we don't calculate the traditional batting average here. We calculate the mean number of runs scored per innings. The batting average we generally use in cricket is a measure of how many runs a batter scores per dismissal but when it's a new game, you don't get to carry over your score from the last game if you were not out so for many players the idea of how many runs they score per game is inflated."),
+                     tags$li("Median runs: mean runs scored tells us an average of how many runs a player score per innings but it's not a perfect metric. The number of runs scored by players fluctuates so some averages are propped up by a handful of brilliant innings, which masks a lot of low scores. The median gives us a better idea of how consistent the batter is by telling us what 50% of the scores are greater (or less) than."),
+                     tags$li("Mean SR: the usual career strike rate of player."),
+                     tags$li("Median SR: just as with runs, strike rates can be inflated by a few extraordinary knocks. Knowing what the median is gives us a better idea of what a player's strike rate is when they get out. Batter's with low medians could be chewing up a lot of balls and scoring not many."),
+                     tags$li("Mean balls faced: the number of balls faced a player faces per innings. If a batter tends to face few deliveries, they will ideally have high strike rates."),
+                     tags$li("Median balls faced: another measure for the number of balls a player faces per innings."),
+                     tags$li("Acceleration: how quickly a batter's strike rate increases as the innings goes on"),
+                     tags$li("BASRA: stands for batting average and strike rate aggregate. As runs aren't the only currency in T20 cricket, BASRA helps us compare two players by taking into account strike rates too.")
+                    ),
+                   br(),
+                   h5("Coming soon"),
+                   tags$hr(),
+                   tags$ul(
+                     tags$li("Further ways to break down player stats"),
+                     tags$li("Side-by-side player comparisons")
+                    )
+                ),
+             id = "About_tab"
+          )
+        )
     )
 )
 
