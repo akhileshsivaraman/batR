@@ -2,7 +2,6 @@
 # last updated: 4th May 2023
 library(cricketdata)
 library(dplyr)
-library(fst)
 
 tournaments <- cricsheet_codes
 
@@ -21,7 +20,6 @@ for(i in mens_t20_tournaments){
   
   male_data <- rbind(male_data, x) 
 }
-write_fst(male_data, path = "data/mens_ball_by_ball_data.fst")
 saveRDS(male_data, file = "data/mens_ball_by_ball_data.rds")
 
 #---- save women's ball-by-ball data ----
