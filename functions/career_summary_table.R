@@ -12,11 +12,17 @@ career_summary_table <- function(ball_by_ball_data, player_innings, model) {
   acceleration <- unname(model$coefficients[2])
   basra <- mean_runs_scored + mean_SR
   
-  player_summary_table <- tibble(innings_n, boundary_rate, dbp,
-                                 mean_runs_scored, median_runs_scored,
-                                 mean_SR, median_SR,
-                                 mean_balls_faced, median_balls_faced,
-                                 acceleration, basra) |>
+  player_summary_table <- tibble(innings_n,
+                                 boundary_rate,
+                                 dbp,
+                                 mean_runs_scored,
+                                 median_runs_scored,
+                                 mean_SR,
+                                 median_SR,
+                                 mean_balls_faced,
+                                 median_balls_faced,
+                                 acceleration,
+                                 basra) |>
     `colnames<-`(c("Innings",
                    "Balls per boundary",
                    "Dot ball %",
