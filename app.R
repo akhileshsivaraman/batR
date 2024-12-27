@@ -83,16 +83,19 @@ source("modules/stats_breakdown.R")
 
 #---- UI ----
 ui <- page_navbar(
-  title = "batR",
+  #title = "batR",
+  
+  selected = "batR",
   
   useShinyjs(),
   
-  # theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#1A281F", secondary = "#FFA630", font_scale = 0.8),
+  theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#1A281F", secondary = "#FFA630", font_scale = 0.8),
   
   # titlePanel("batR"),
   
   nav_panel(
     title = "batR",
+    value = "batR",
     select_player_UI("select_player"), 
     career_summary_UI("career_summary"),
     stats_breakdown_UI("stats_breakdown"),
@@ -101,11 +104,13 @@ ui <- page_navbar(
   
   nav_panel(
     title = "Find Player",
+    value = "Find Player",
     find_player_UI("find_player")
   ),
   
   nav_panel(
     title = "About",
+    value = "About",
     about_UI("about")
   )
 )
@@ -174,4 +179,4 @@ server <- function(input, output, session){
 
 
 #---- app ----
-shinyApp(ui, server, session)
+shinyApp(ui, server)
