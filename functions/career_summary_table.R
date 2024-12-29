@@ -1,4 +1,22 @@
-#---- career summary table ----
+#' Career summary table
+#' 
+#' Calculate summary stats over the course of a player's career.
+#' 
+#' This function calculates:
+#' * the number of innings played
+#' * boundary rate
+#' * dot ball percentage
+#' * mean & median runs scored per innings
+#' * mean & median strike rate in an innings
+#' * median balls faced
+#' * acceleration
+#' * BASRA
+#' returning them in a tibble
+#' 
+#' @param ball_by_ball_data - tibble: a tibble of ball by ball data produced by `career_bbb()`
+#' @param player_innings - tibble: a tibble summarising all innings a player has played over their career produced by `innings_table()`
+#' @param model - lm object: a linear model describing the relationship between balls faced and SR
+
 career_summary_table <- function(ball_by_ball_data, player_innings, model) {
   innings_n <- nrow(ball_by_ball_data)
   boundary_rate <- balls_per_boundary(ball_by_ball_data)

@@ -1,7 +1,21 @@
-#---- metrics_by_tournament ----
-# takes ball by ball data for a tournament
-# call split(ball_by_ball_data, ball_by_ball_data$tournament) to create ball by ball data for a tournament
-# then use lapply(output of the above, metrics_by_tournament)
+#' Calculate stats by tournament for a player
+#' 
+#' Calculate a player's career summary stats for a tournament.
+#' 
+#' This function calculates:
+#' * the number of innings played
+#' * boundary rate
+#' * dot ball percentage
+#' * mean & median runs scored per innings
+#' * mean & median strike rate in an innings
+#' * median balls faced
+#' * acceleration
+#' * BASRA
+#' 
+#' The acceleration coefficient is calculated by using `career_mean_bbb()` and modelling the relationship between SR and ball number
+#' 
+#' @param x - tibble: a tibble of ball by ball data for a tournament. Ball by ball data for a tournament can be created by calling `split(ball_by_ball_data, ball_by_ball_data$tournament)` where `ball_by_ball_data` is created by `career_bbb()`
+
 metrics_by_tournament <- function(x){
   x_innings_table <- innings_table(x)
   
@@ -19,11 +33,14 @@ metrics_by_tournament <- function(x){
   tournament_ball_by_ball_mean <- career_mean_bbb(x)
   model <- lm(tournament_ball_by_ball_mean$`mean SR` ~ tournament_ball_by_ball_mean$ball)
   
-  tournament_summary_table <- tibble(innings_n, boundary_rate, dbp,
+  tournament_summary_table <- tibble(innings_n,
+                                     boundary_rate,
+                                     dbp,
                                      mean_runs_scored, median_runs_scored,
                                      mean_SR, median_SR,
                                      mean_balls_faced, median_balls_faced,
-                                     unname(model$coefficients[2]), basra) |>
+                                     unname(model$coefficients[2]),
+                                     basra) |>
     `colnames<-`(c("Innings",
                    "Balls per boundary",
                    "Dot ball %",
@@ -35,5 +52,4 @@ metrics_by_tournament <- function(x){
                    "Median balls faced",
                    "Acceleration",
                    "BASRA"))
-  
 }

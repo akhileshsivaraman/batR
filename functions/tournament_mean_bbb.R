@@ -1,4 +1,9 @@
-#---- calculate mean runs scored and mean SR by ball faced broken down by tournament ----
+#' Calculate mean runs scored and mean SR by ball faced across tournaments
+#' 
+#' From a table of ball_by_ball data, calculate mean runs scored and strike rate by ball faced at every different tournament found in the table. Returns a tibble describing the mean runs scored and SR off ball n in an innings at a tournament.
+#' 
+#' @param ball_by_ball_data - tibble: a tibble of ball by ball data produced by `career_bbb()`
+
 tournament_mean_bbb <- function(ball_by_ball_data){
   x <- ball_by_ball_data |>
     group_by(tournament) |>

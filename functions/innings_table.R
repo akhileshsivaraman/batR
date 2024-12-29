@@ -1,4 +1,9 @@
-#---- create a tibble of all the innings a player has played ----
+#' Create a tibble summarising all innings a player has played
+#' 
+#' From ball by ball data, calculate the number of runs scored, balls faced and strike rate for every innings played by a player.
+#' 
+#' @param ball_by_ball_data - tibble: a tibble of ball by ball data produced by `career_bbb()`
+
 innings_table <- function(ball_by_ball_data){
   x <- ball_by_ball_data |>
     pivot_longer(cols = 3:ncol(ball_by_ball_data), names_to = "ball", values_to = "runs per ball") |>

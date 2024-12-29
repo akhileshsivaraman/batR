@@ -1,6 +1,19 @@
-#---- spider plot ----
-library(tidyverse)
-library(fmsb)
+#' Create a spider plot
+#' 
+#' Create a spider plot displaying a player's career stats:
+#' * balls per boundary
+#' * dot ball percentage
+#' * median runs scored
+#' * median strike rate
+#' * acceleration
+#' * BASRA
+#' 
+#' @param player_summary_table - tibble: a career summary table produced by `career_summary_table()`
+#' @param player_innings - tibble: a tibble summarising all innings a player has played over their career produced by `innings_table()`
+#' @param title - string: a title to display with the plot
+#' 
+#' @import tidyverse
+#' @import fmsb
 
 spider_plot <- function(player_summary_table, player_innings, title = NULL) {
   player_summary_table <- player_summary_table |>
