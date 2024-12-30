@@ -35,22 +35,12 @@ select_player_UI <- function(id){
           )
         ),
         
-        helpText("The name of the player must be entered in the form of their full initials + surname. E.g. `CH Gayle`. You can search for a player of interest's name in this form on the Find Player page."),
+        helpText("The name of the player must be entered in the form of their full initials + surname. E.g. `CH Gayle`. You can search for a player of interest's name in this format on the Find Player page."),
         br(),
         
-        tags$div(
-          actionButton(
-            NS(id, "find_data"), 
-            label = "Find data"
-          ),
-          hidden(
-            tags$div(
-              NS(id, "loading_spinner"),
-              icon("spinner"),
-              class = "fa-spin",
-              style = "display: inline-block")
-          ),
-          style = "display:inline"
+        actionButton(
+          NS(id, "find_data"), 
+          label = "Analyse player stats"
         ),
         br(),
         
@@ -60,28 +50,21 @@ select_player_UI <- function(id){
   )
 }
 
+
 #---- select_player_server ----
 select_player_server <- function(id, mens_t20_data, womens_t20_data){
   moduleServer(id, function(input, output, session){
-    
-    # when the find data button is clicked, give the user feedback
-    observeEvent(input$find_data, {
-      disable(id = "find_data")
-      show(id = "loading_spinner")
-      delay(5000, {
-        enable(id = "find_data")
-        hide(id = "loading_spinner")
-      })
-    })
     
     # get the data for the requested player
     innings_list <- eventReactive(input$find_data, {
       find_bbb(player_name = input$player_selected, 
                gender = input$male_or_female, 
                mens_t20_data = mens_t20_data, 
-               womens_t20_data = womens_t20_data
+               womens_t20_data = womens_t20_data,
+               with_progress = TRUE
       )
     })
+    
     
     # render a warning when innings_list is length 0
     output$innings_warning <- renderUI({

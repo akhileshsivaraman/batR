@@ -92,8 +92,6 @@ ui <- page_navbar(
   
   theme = bs_theme(version = 5, bg = "#FBFFF1", fg = "#000000", primary = "#1A281F", secondary = "#FFA630", font_scale = 0.8),
   
-  # titlePanel("batR"),
-  
   nav_panel(
     title = "batR",
     value = "batR",
@@ -128,7 +126,7 @@ server <- function(input, output, session){
   # create ball by ball data
   ball_by_ball_data <- reactive({
     if(length(selected_player$innings_list()) > 0){
-      career_bbb(selected_player$innings_list())
+      career_bbb(selected_player$innings_list(), with_progress = TRUE)
     }
   })
   
@@ -143,7 +141,7 @@ server <- function(input, output, session){
   })
   
   # mean runs scored and mean SR by ball faced at each tournament
-  tournament_ball_by_ball_mean <- reactive({
+  tournament_ball_by_ball_mean <- reactive({ # could move to ball_by_ball analysis module
     tournament_mean_bbb(ball_by_ball_data())
   })
   
