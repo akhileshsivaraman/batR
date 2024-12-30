@@ -1,5 +1,18 @@
-#---- metrics_by_phase ----
-# takes the output of phase_bbb
+#' Calculate stats by phase for a player
+#' 
+#' Calculate a player's summary stats across phases.
+#' 
+#' This function calculates:
+#' * the number of innings played
+#' * boundary rate
+#' * dot ball percentage
+#' * mean runs scored per innings
+#' * mean strike rate in an innings
+#' * mean balls faced
+#' * BASRA
+#' 
+#' @param player_bbb_by_phase - tibble: a tibble of time series-like data tracking innings played by a player returned by `phase_bbb()`
+
 metrics_by_phase <- function(player_bbb_by_phase){
   # calculate runs, SR and BASRA
   x <- player_bbb_by_phase |>

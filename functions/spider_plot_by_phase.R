@@ -1,5 +1,15 @@
-#---- spider_plot_by_phase ----
-# takes the output of phase_bbb and metrics_by_phase
+#' Create spider plots for each phase of an innings
+#' 
+#' Create 3 spider plots, one for each phase of an innings, to display:
+#' * balls per boundary
+#' * dot ball percentage
+#' * mean runs scored
+#' * mean strike rate
+#' * BASRA
+#' 
+#' @param player_bbb_by_phase - tibble: a tibble of time series-like data tracking innings played by a player returned by `phase_bbb()`
+#' @param metrics_by_phase_summary - tibble: a tibble of summary stats across phases of an innings for a player returned by `metrics_by_phase()`
+
 spider_plot_by_phase <- function(player_bbb_by_phase, metrics_by_phase_summary){
   phase_summary <- player_bbb_by_phase |>
     ungroup() |>

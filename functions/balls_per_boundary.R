@@ -1,8 +1,8 @@
 #' Calculate balls per boundary
 #' 
-#' This function calculates the number of balls a player takes to hit a boundary
+#' Calculate the number of balls a player takes to hit a boundary
 #' 
-#' @param ball_by_ball_data -- a tibble of 
+#' @param ball_by_ball_data - tibble: a tibble of ball by ball data produced by `career_bbb()`
 
 balls_per_boundary <- function(ball_by_ball_data){
   balls <- ball_by_ball_data[3:ncol(ball_by_ball_data)]
