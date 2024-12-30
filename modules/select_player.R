@@ -61,7 +61,7 @@ select_player_UI <- function(id){
 }
 
 #---- select_player_server ----
-select_player_server <- function(id){
+select_player_server <- function(id, mens_t20_data, womens_t20_data){
   moduleServer(id, function(input, output, session){
     
     # when the find data button is clicked, give the user feedback
@@ -93,7 +93,6 @@ select_player_server <- function(id){
     })
     
     
-    
     list(
       innings_list = innings_list,
       player_name = reactive({input$player_selected})
@@ -103,13 +102,13 @@ select_player_server <- function(id){
 
 
 #---- select_player_app ----
-select_player_app <- function(){
+select_player_app <- function(mens_t20_data, womens_t20_data){
   ui <- page_fluid(
     select_player_UI("select_player")
   )
   
   server <- function(input, output, session){
-    select_player_server("select_player")
+    select_player_server("select_player", mens_t20_data, womens_t20_data)
   }
   
   shinyApp(ui, server)

@@ -52,9 +52,9 @@ ball_by_ball_analysis_server <- function(id, ball_by_ball_mean, model, tournamen
     
     
     # get mean SR
-    mean_SR <- observe({
+    mean_SR <- reactive({
       req(player_summary_table())
-      player_summary_table[["Mean strike rate"]][[1]]
+      player_summary_table()[["Mean strike rate"]][[1]]
     })
     
     
@@ -80,7 +80,7 @@ ball_by_ball_analysis_server <- function(id, ball_by_ball_mean, model, tournamen
     
     output$balls_to_mean_SR <- renderText({
       req(mean_SR())
-      paste("On average", selected_player$player_name, "takes", balls_to_reach_mean_SR(), "balls to reach their mean SR.")
+      paste("On average", selected_player$player_name(), "takes", balls_to_reach_mean_SR(), "balls to reach their mean SR.")
     })
     
     
