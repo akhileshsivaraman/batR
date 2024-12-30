@@ -84,7 +84,7 @@ source("modules/stats_breakdown.R")
 
 #---- UI ----
 ui <- page_navbar(
-  #title = "batR",
+  title = "batR",
   
   selected = "batR",
   
@@ -98,9 +98,9 @@ ui <- page_navbar(
     title = "batR",
     value = "batR",
     select_player_UI("select_player"), 
-    career_summary_UI("career_summary"),
-    stats_breakdown_UI("stats_breakdown"),
-    ball_by_ball_analysis_UI("ball_by_ball_analysis")
+    hidden(div(id = "career_summary_UI", career_summary_UI("career_summary"))),
+    hidden(div(id = "stats_breakdown_UI", stats_breakdown_UI("stats_breakdown"))),
+    hidden(div(id = "ball_by_ball_analysis_UI", ball_by_ball_analysis_UI("ball_by_ball_analysis")))
   ),
   
   nav_panel(
@@ -155,6 +155,14 @@ server <- function(input, output, session){
   # career summary table
   player_summary_table <- reactive({
     career_summary_table(ball_by_ball_data(), player_innings(), model())
+  })
+  
+  
+  # show hidden UI ---
+  observe({
+    toggle(id = "career_summary_UI", condition = req(ball_by_ball_data()))
+    toggle(id = "stats_breakdown_UI", condition = req(ball_by_ball_data()))
+    toggle(id = "ball_by_ball_analysis_UI", condition = req(ball_by_ball_data()))
   })
   
   
