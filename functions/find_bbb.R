@@ -17,8 +17,9 @@ find_bbb <- function(player_name, gender, mens_t20_data, womens_t20_data, with_p
       min = 0,
       max = 1
     )
-    progress$set(value = 0,
-                 message = "Fetching player data"
+    progress$set(
+      value = 0,
+      message = "Fetching player data"
     )
   }
   
