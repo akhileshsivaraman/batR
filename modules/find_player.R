@@ -43,20 +43,9 @@ find_player_UI <- function(id){
 find_player_server <- function(id){
   moduleServer(id, function(input, output, session){
     
-    # search for the initials of a player
-    # when the button is clicked, give the user feedback
-    observeEvent(input$find_player, {
-      disable(id = "find_player")
-      show(id = "loading_spinner_2")
-      delay(3000, {
-        enable(id = "find_player")
-        hide(id = "loading_spinner_2")
-      })
-    })
-    
     # search for players that match the search string
     players_found <- eventReactive(input$find_player, {
-      find_initials(input$player_to_find)
+      find_initials(input$player_to_find, with_progress = TRUE)
     })
     
     # render a warning when players_found is length 0
