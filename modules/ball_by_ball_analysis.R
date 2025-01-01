@@ -42,7 +42,7 @@ ball_by_ball_analysis_UI <- function(id){
 
 
 #---- ball_by_ball_analysis_server ----
-ball_by_ball_analysis_server <- function(id, ball_by_ball_mean, model, tournament_ball_by_ball_mean, selected_player, player_summary_table){
+ball_by_ball_analysis_server <- function(id, ball_by_ball_data, ball_by_ball_mean, model, selected_player, player_summary_table){
   moduleServer(id, function(input, output, session){
     
     # ball by ball table
@@ -50,13 +50,11 @@ ball_by_ball_analysis_server <- function(id, ball_by_ball_mean, model, tournamen
       ball_by_ball_mean()
     }, options = list(pageLength = 10), rownames = F)
     
-    
-    # get mean SR
+    # get career mean SR
     mean_SR <- reactive({
       req(player_summary_table())
       player_summary_table()[["Mean strike rate"]][[1]]
     })
-    
     
     # ball by ball SR plot
     output$ball_by_ball_SR_plot <- renderPlot({
@@ -84,6 +82,11 @@ ball_by_ball_analysis_server <- function(id, ball_by_ball_mean, model, tournamen
     })
     
     
+    # calculate mean runs scored and mean SR by ball faced at each tournament
+    tournament_ball_by_ball_mean <- reactive({
+      tournament_mean_bbb(ball_by_ball_data())
+    })
+    
     # ball by ball SR split by tournament
     output$tournament_ball_by_ball_SR_plot <- renderPlotly({
       ggplotly(ggplot(tournament_ball_by_ball_mean()) +
@@ -105,14 +108,14 @@ ball_by_ball_analysis_server <- function(id, ball_by_ball_mean, model, tournamen
 
 
 #---- ball_by_ball_analysis_app ----
-ball_by_ball_analysis_app <- function(ball_by_ball_mean, model, tournament_ball_by_ball_mean, selected_player, player_summary_table){
+ball_by_ball_analysis_app <- function(ball_by_ball_data, ball_by_ball_mean, model, selected_player, player_summary_table){
   
   ui <- page_fluid(
     ball_by_ball_analysis_UI("ball_by_ball_analysis")
   )
   
   server <- function(input, output, session){
-   ball_by_ball_analysis_server("ball_by_ball_analysis", ball_by_ball_mean, model, tournament_ball_by_ball_mean, selected_player, player_summary_table) 
+   ball_by_ball_analysis_server("ball_by_ball_analysis", ball_by_ball_data, ball_by_ball_mean, model, selected_player, player_summary_table)
   }
   
   shinyApp(ui, server)

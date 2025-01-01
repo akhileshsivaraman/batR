@@ -140,11 +140,6 @@ server <- function(input, output, session){
     lm(ball_by_ball_mean()$`mean SR` ~ ball_by_ball_mean()$ball)
   })
   
-  # mean runs scored and mean SR by ball faced at each tournament
-  tournament_ball_by_ball_mean <- reactive({ # could move to ball_by_ball analysis module
-    tournament_mean_bbb(ball_by_ball_data())
-  })
-  
   # create tibble of all innings played by the player
   player_innings <- reactive({
     innings_table(ball_by_ball_data())
@@ -169,11 +164,11 @@ server <- function(input, output, session){
   
   
   # stats breakdowns ----
-  stats_breakdown_server("stats_breakdown", ball_by_ball_data, player_innings, selected_player$innings_list)
+  stats_breakdown_server("stats_breakdown", ball_by_ball_data, player_innings, selected_player)
   
   
   # ball_by_ball_analysis ----
-  ball_by_ball_analysis_server("ball_by_ball_analysis", ball_by_ball_mean, model, tournament_ball_by_ball_mean, selected_player, player_summary_table)
+  ball_by_ball_analysis_server("ball_by_ball_analysis", ball_by_ball_data, ball_by_ball_mean, model, selected_player, player_summary_table)
   
   
   # find_player ----
