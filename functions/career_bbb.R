@@ -10,7 +10,7 @@ career_bbb <- function(innings_list, with_progress = FALSE){
   if(with_progress){
     progress <- Progress$new(
       min = 0,
-      max = (length(innings_list) + 5)
+      max = (length(innings_list) + 10)
     )
     progress$set(value = 0,
                  message = "Preparing ball by ball data for analysis",
@@ -34,7 +34,7 @@ career_bbb <- function(innings_list, with_progress = FALSE){
   
   # final update and close progress object
   if(with_progress){
-    progress$inc(amount = 4)
+    progress$inc(amount = 9)
     progress$close()
   }
   

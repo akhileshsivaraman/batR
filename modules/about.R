@@ -4,12 +4,10 @@
 about_UI <- function(id){
   tagList(
     h3("About"),
-    tags$hr(),
     p("batR is a tool to analyse batting data from T20 matches."),
     p("All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 4th May 2023."),
     br(),
     h5("Statistics calculated"),
-    tags$hr(),
     tags$ul(
       tags$li("Ball per boundary: quite simply in T20 cricket, the team that hits the most boundaries tends to win."),
       tags$li("Dot ball percentage: with only 120 balls to score from, it's critical that batters score from as many balls as possible, even if it's just 1 run. Losing sides often have high dot ball percentages."),
@@ -24,7 +22,6 @@ about_UI <- function(id){
     ),
     br(),
     h5("Coming soon"),
-    tags$hr(),
     tags$ul(
       tags$li("Interactive plots"),
       tags$li("Further breakdowns of a player's stats"),
