@@ -24,14 +24,6 @@ stats_breakdown_UI <- function(id){
               selected = "None selected",
               multiple = F
             ),
-            hidden(
-              tags$div(
-                id = NS(id, "loading_spinner_breakdown_option"),
-                icon("spinner"), 
-                class = "fa-spin", 
-                style = "display: inline-block"
-              )
-            ),
             style = "display:inline"
           ),
           conditionalPanel(
