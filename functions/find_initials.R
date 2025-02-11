@@ -26,4 +26,6 @@ find_initials <- function(player_to_find, with_progress = FALSE){
     progress$set(value = 1)
     progress$close()
   }
+  
+  return(d)
 }
