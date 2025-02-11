@@ -6,35 +6,32 @@
 #---- ball_by_ball_analysis_UI ----
 ball_by_ball_analysis_UI <- function(id){
   tagList(
-    fluidRow(
-      column(
-        12,
-        h3("Ball by ball analysis"),
-        tags$hr()
-      )
-    ),
-    
-    fluidRow(
-      column(
-        4,
-        h4("Career ball by ball analysis"),
-        dataTableOutput(NS(id, "ball_by_ball_table"))
+    card(
+      card_header(h3("Ball by Ball Analysis"), class = "bg-dark"),
+      
+      fluidRow(
+        column(
+          4,
+          h4("Career ball by ball analysis"),
+          dataTableOutput(NS(id, "ball_by_ball_table"))
+        ),
+        column(
+          width = 7,
+          offset = 1,
+          h4("Career strike rate by ball"),
+          plotOutput(NS(id, "ball_by_ball_SR_plot")),
+          textOutput(NS(id, "balls_to_mean_SR")),
+          p("The horizontal line is the player's career strike rate and the black line is a model of how their typical innings progresses (steeper black line = greater acceleration). Where the two lines meet indicates how many balls it takes the player to reach their mean strike rate.")
+        )
       ),
-      column(
-        8,
-        h4("Career strike rate by ball"),
-        plotOutput(NS(id, "ball_by_ball_SR_plot")),
-        textOutput(NS(id, "balls_to_mean_SR")),
-        p("The horizontal line is the player's career strike rate and the black line is a model of how their typical innings progresses (steeper black line = greater acceleration). Where the two lines meet indicates how many balls it takes the player to reach their mean strike rate.")
-      )
-    ),
-    
-    fluidRow(
-      column(
-        12,
-        h4("Strike rate by ball across tournaments"),
-        plotlyOutput(NS(id, "tournament_ball_by_ball_SR_plot")),
-        p("The horizontal line is the player's career strike rate and the other lines are models of how their typical innings progresses at each tournament.")
+      
+      fluidRow(
+        column(
+          12,
+          h4("Strike rate by ball across tournaments"),
+          plotlyOutput(NS(id, "tournament_ball_by_ball_SR_plot")),
+          p("The horizontal line is the player's career strike rate and the other lines are models of how their typical innings progresses at each tournament.")
+        )
       )
     )
   )
@@ -48,7 +45,7 @@ ball_by_ball_analysis_server <- function(id, ball_by_ball_data, ball_by_ball_mea
     # ball by ball table
     output$ball_by_ball_table <- renderDataTable({
       ball_by_ball_mean()
-    }, options = list(pageLength = 10), rownames = F)
+    }, options = list(pageLength = 10, dom = "tp"), rownames = F)
     
     # get career mean SR
     mean_SR <- reactive({

@@ -6,14 +6,15 @@ source("functions/spider_plot.R")
 #---- career_summary_UI ----
 career_summary_UI <- function(id){
   tagList(
-    fluidRow(
-      column(
-        12,
-        h3("Career statistics"),
-        tags$hr(),
-        h4("Career Summary"),
-        plotOutput(NS(id, "career_summary_plot")),
-        tableOutput(NS(id, "career_summary_table")),
+    card(
+      fill = FALSE,
+      card_header(h3("Career Summary Stats"), class = "bg-dark"),
+      fluidRow(
+        column(
+          12,
+          plotOutput(NS(id, "career_summary_plot")),
+          tableOutput(NS(id, "career_summary_table")),
+        )
       )
     )
   )

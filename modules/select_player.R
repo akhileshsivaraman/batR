@@ -6,45 +6,49 @@ source("functions/find_bbb.R")
 #---- select_player_UI ----
 select_player_UI <- function(id){
   tagList(
-    fluidRow(
-      column(
-        12,
-        br(),
-        fluidRow(
-          column(
-            width = 4,
-            tags$div(
-              textInput(
-                NS(id, "player_selected"),
-                label = "Search for a player",
-                placeholder = "E.g. MEK Hussey"
+    card(
+      fill = FALSE,
+      card_header(h3("Select Player"), class = "bg-dark"),
+      fluidRow(
+        column(
+          12,
+          fluidRow(
+            column(
+              width = 4,
+              tags$div(
+                textInput(
+                  NS(id, "player_selected"),
+                  label = "Enter player name",
+                  placeholder = "E.g. MEK Hussey"
+                )
+              )
+            ),
+            column(
+              width = 4,
+              tags$div(
+                radioButtons(
+                  NS(id, "male_or_female"),
+                  label = "Male or Female Player?",
+                  choices = c("male", "female"),
+                  selected = "male",
+                  inline = TRUE
+                )
               )
             )
           ),
-          column(
-            width = 4,
-            tags$div(
-              radioButtons(
-                NS(id, "male_or_female"),
-                label = "Male or Female Player?",
-                choices = c("male", "female"),
-                selected = "male",
-                inline = TRUE
-              )
-            )
-          )
-        ),
-        
-        helpText("The name of the player must be entered in the form of their full initials + surname. E.g. `CH Gayle`. You can search for a player of interest's name in this format on the Find Player page."),
-        br(),
-        
-        actionButton(
-          NS(id, "find_data"), 
-          label = "Analyse player stats"
-        ),
-        br(),
-        
-        uiOutput(NS(id, "innings_warning"))
+          
+          helpText("The name of the player must be entered in the form of their full initials + surname. E.g. `CH Gayle`. You can search for a player of interest's name in this format on the Find Player page."),
+          br(),
+          br(),
+          
+          actionButton(
+            NS(id, "find_data"), 
+            label = "Analyse player stats"
+          ),
+          br(),
+          
+          uiOutput(NS(id, "innings_warning"))
+        )
       )
     )
   )
@@ -71,7 +75,7 @@ select_player_server <- function(id, mens_t20_data, womens_t20_data){
       if(length(innings_list()) < 1){
         div(icon("exclamation-circle"), "Warning: please check that you have selected the correct gender for the player or check the spelling of their name", style = "color:red")
       } else{
-        div("", style = "color:red")
+        div(style = "height: 5px")
       }
     })
     

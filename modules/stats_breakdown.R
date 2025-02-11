@@ -10,41 +10,44 @@ source("functions/spider_plot_by_phase.R")
 #---- stats_breakdown_UI ----
 stats_breakdown_UI <- function(id){
   tagList(
-    fluidRow(
-      column(
-        12,
-        h4("Breakdown player statistics by:"),
-        tags$div(
-          selectInput(
-            NS(id, "stats_breakdown_option"),
-            label = "Options",
-            choices = c("None selected", "Tournament", "Phase"),
-            selected = "None selected",
-            multiple = F
+    card(
+      card_header(h3("Career Stats Breakdowns"), class = "bg-dark"),
+      fluidRow(
+        column(
+          12,
+          h4("Breakdown player statistics by:"),
+          tags$div(
+            selectInput(
+              NS(id, "stats_breakdown_option"),
+              label = "Options",
+              choices = c("None selected", "Tournament", "Phase"),
+              selected = "None selected",
+              multiple = F
+            ),
+            hidden(
+              tags$div(
+                id = NS(id, "loading_spinner_breakdown_option"),
+                icon("spinner"), 
+                class = "fa-spin", 
+                style = "display: inline-block"
+              )
+            ),
+            style = "display:inline"
           ),
-          hidden(
-            tags$div(
-              id = NS(id, "loading_spinner_breakdown_option"),
-              icon("spinner"), 
-              class = "fa-spin", 
-              style = "display: inline-block"
-            )
+          conditionalPanel(
+            condition = "input.stats_breakdown_option == 'Tournament'",
+            ns = NS(id),
+            h5("Tournament"),
+            plotOutput(NS(id, "tournament_summary_plots")), # spider plots by tournament
+            tableOutput(NS(id, "tournament_summary_table")) # metrics by tournament
           ),
-          style = "display:inline"
-        ),
-        conditionalPanel(
-          condition = "input.stats_breakdown_option == 'Tournament'",
-          ns = NS(id),
-          h5("Tournament"),
-          plotOutput(NS(id, "tournament_summary_plots")), # spider plots by tournament
-          tableOutput(NS(id, "tournament_summary_table")) # metrics by tournament
-        ),
-        conditionalPanel(
-          condition = "input.stats_breakdown_option == 'Phase'",
-          ns = NS(id),
-          h5("Phase"),
-          plotOutput(NS(id, "phase_summary_plots")),
-          tableOutput(NS(id, "phase_summary_table")),
+          conditionalPanel(
+            condition = "input.stats_breakdown_option == 'Phase'",
+            ns = NS(id),
+            h5("Phase"),
+            plotOutput(NS(id, "phase_summary_plots")),
+            tableOutput(NS(id, "phase_summary_table")),
+          )
         )
       )
     )
