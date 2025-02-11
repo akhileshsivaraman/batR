@@ -18,14 +18,6 @@ find_player_UI <- function(id){
         actionButton(
           NS(id, "find_player"),
           label = "Find player"
-        ),
-        hidden(
-          tags$div(
-            id = NS(id, "loading_spinner_2"),
-            icon("spinner"), 
-            class = "fa-spin", 
-            style = "display: inline-block"
-          )
         )
       ),
       
