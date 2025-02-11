@@ -5,7 +5,7 @@ about_UI <- function(id){
   tagList(
     h3("About"),
     p("batR is a tool to analyse batting data from T20 matches."),
-    p("All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 4th May 2023."),
+    p("All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 11th Feb 2025."),
     br(),
     h5("Statistics calculated"),
     tags$ul(
