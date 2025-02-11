@@ -11,7 +11,7 @@ source("functions/spider_plot_by_phase.R")
 stats_breakdown_UI <- function(id){
   tagList(
     card(
-      card_header(h3("Career Stats Breakdowns"), class = "bg-dark"),
+      card_header(h3("Career Stats Breakdowns"), class = "bg-primary"),
       fluidRow(
         column(
           12,

@@ -8,7 +8,7 @@ career_summary_UI <- function(id){
   tagList(
     card(
       fill = FALSE,
-      card_header(h3("Career Summary Stats"), class = "bg-dark"),
+      card_header(h3("Career Summary Stats"), class = "bg-primary"),
       fluidRow(
         column(
           12,

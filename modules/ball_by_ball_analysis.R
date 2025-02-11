@@ -7,7 +7,7 @@
 ball_by_ball_analysis_UI <- function(id){
   tagList(
     card(
-      card_header(h3("Ball by Ball Analysis"), class = "bg-dark"),
+      card_header(h3("Ball by Ball Analysis"), class = "bg-primary"),
       
       fluidRow(
         column(

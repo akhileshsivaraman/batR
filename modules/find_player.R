@@ -6,25 +6,30 @@
 #---- find_player_UI ----
 find_player_UI <- function(id){
   tagList(
-    h3("Find Player"),
-    sidebarLayout(
-      sidebarPanel(
-        p("On this page, you can search for the initials of a player whose stats you would like to analyse. You can type in the full name of the player or just their surname and the table opposite will give you their name in the form of initials + surname, which you will need to use batR."),
-        textInput(
-          NS(id, "player_to_find"), 
-          label = "Search for a player's initials",
-          placeholder = "E.g. \"Perry\", \"E Perry\" or \"Ellyse Perry\""
+    card(
+      fill = FALSE,
+      card_header(h3("Find Player"), class = "bg-primary"),
+      sidebarLayout(
+        sidebarPanel(
+          p("On this page, you can search for the initials of a player whose stats you would like to analyse. You can type in the full name of the player or just their surname and the table opposite will give you their name in the form of initials + surname, which you will need to use batR."),
+          textInput(
+            NS(id, "player_to_find"), 
+            label = "Search for a player's initials",
+            placeholder = "E.g. \"Perry\", \"E Perry\" or \"Ellyse Perry\""
+          ),
+          actionButton(
+            NS(id, "find_player"),
+            label = "Find player"
+          )
         ),
-        actionButton(
-          NS(id, "find_player"),
-          label = "Find player"
+        
+        mainPanel(
+          card(
+            h4("Search results"),
+            tableOutput(NS(id, "players_found_table")),
+            uiOutput(NS(id, "players_found_warning"))
+          )
         )
-      ),
-      
-      mainPanel(
-        h4("Search results"),
-        tableOutput(NS(id, "players_found_table")),
-        uiOutput(NS(id, "players_found_warning"))
       )
     )
   )

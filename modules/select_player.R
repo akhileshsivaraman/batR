@@ -8,7 +8,7 @@ select_player_UI <- function(id){
   tagList(
     card(
       fill = FALSE,
-      card_header(h3("Select Player"), class = "bg-dark"),
+      card_header(h3("Select Player"), class = "bg-primary"),
       fluidRow(
         column(
           12,
@@ -19,7 +19,7 @@ select_player_UI <- function(id){
                 textInput(
                   NS(id, "player_selected"),
                   label = "Enter player name",
-                  placeholder = "E.g. MEK Hussey"
+                  placeholder = "E.g. JE Root"
                 )
               )
             ),
