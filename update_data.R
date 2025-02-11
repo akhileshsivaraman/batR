@@ -1,5 +1,5 @@
 #----- Update batR data -----
-# last updated: 4th May 2023
+# last updated: 11th Feb 2025
 library(cricketdata)
 library(dplyr)
 
