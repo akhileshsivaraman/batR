@@ -32,6 +32,7 @@ find_bbb <- function(player_name, gender, con, with_progress = FALSE){
   query <- sqlInterpolate(
     con,
     "SELECT * FROM ?table WHERE striker = ?player_name",
+    table = table,
     player_name = player_name
   )
   
