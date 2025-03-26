@@ -118,6 +118,9 @@ server <- function(input, output, session){
   
   # connect to duckdb ----
   con <- DBI::dbConnect(duckdb(), "data/t20_batting_data.duckdb")
+  session$onSessionEnded(function(){
+    DBI::dbDisconnect(con)
+  })
   
   # get innings list for selected player ----
   selected_player <- select_player_server("select_player", mens_t20_data, womens_t20_data)
