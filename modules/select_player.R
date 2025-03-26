@@ -56,15 +56,14 @@ select_player_UI <- function(id){
 
 
 #---- select_player_server ----
-select_player_server <- function(id, mens_t20_data, womens_t20_data){
+select_player_server <- function(id, con){
   moduleServer(id, function(input, output, session){
     
     # get the data for the requested player
     innings_list <- eventReactive(input$find_data, {
       find_bbb(player_name = input$player_selected, 
-               gender = input$male_or_female, 
-               mens_t20_data = mens_t20_data, 
-               womens_t20_data = womens_t20_data,
+               gender = input$male_or_female,
+               con = con,
                with_progress = TRUE
       )
     })

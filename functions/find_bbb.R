@@ -4,12 +4,11 @@
 #' 
 #' @param player_name - string: a cricket player's name
 #' @param gender - string: male or female
-#' @param mens_t20_data - tibble: T20 data from men's matches
-#' @param womens_t20_data - tibble: T20 data from women's matches
+#' @param con - duckdb_connection: connection to a duckdb containing tables of batting data
 #' @param with_progress - boolean: whether or not to include a progress bar. Should be FALSE outside of an interactive context
 #' @import shiny
 
-find_bbb <- function(player_name, gender, mens_t20_data, womens_t20_data, with_progress = FALSE){
+find_bbb <- function(player_name, gender, con, with_progress = FALSE){
   
   # initialise progress bar
   if(with_progress){
@@ -25,12 +24,22 @@ find_bbb <- function(player_name, gender, mens_t20_data, womens_t20_data, with_p
   
   # get data
   if(gender == "male"){
-    x <- mens_t20_data |>
-      filter(striker == player_name)
+    table <- "mens_ball_by_ball_data"
   } else if(gender == "female"){
-    x <- womens_t20_data |>
-      filter(striker == player_name)
+    table <- "womens_ball_by_ball_data"
   }
+  
+  query <- sqlInterpolate(
+    con,
+    "SELECT * FROM ?table WHERE striker = ?player_name",
+    table = table,
+    player_name = player_name
+  )
+  
+  x <- dbGetQuery(
+    con,
+    query
+  )
   
   # split data by match id
   y <- split(x, f = x$match_id)

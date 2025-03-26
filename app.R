@@ -10,12 +10,10 @@ library(DT)
 library(shinyjs)
 library(plotly)
 library(fmsb)
+library(duckdb)
 
 
-#---- load data ----
-mens_t20_data <- read_rds("data/mens_ball_by_ball_data.rds")
-womens_t20_data <- read_rds("data/womens_ball_by_ball_data.rds")
-
+#---- data ----
 # vector of tournaments for men and women
 tournaments <- cricsheet_codes
 mens_t20_tournaments <- tournaments |>
@@ -118,8 +116,14 @@ ui <- page_navbar(
 #---- server ----
 server <- function(input, output, session){
   
+  # connect to duckdb ----
+  con <- DBI::dbConnect(duckdb(), "data/t20_batting_data.duckdb")
+  session$onSessionEnded(function(){
+    DBI::dbDisconnect(con)
+  })
+  
   # get innings list for selected player ----
-  selected_player <- select_player_server("select_player", mens_t20_data, womens_t20_data)
+  selected_player <- select_player_server("select_player", con)
   
   
   # computations ----
