@@ -467,6 +467,19 @@
       ],
       "Hash": "54ed3ea01b11e81a86544faaecfef8e2"
     },
+    "duckdb": {
+      "Package": "duckdb",
+      "Version": "1.2.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "DBI",
+        "R",
+        "methods",
+        "utils"
+      ],
+      "Hash": "b66f884e1b805c4a3c318c9465ddeb01"
+    },
     "evaluate": {
       "Package": "evaluate",
       "Version": "1.0.1",
