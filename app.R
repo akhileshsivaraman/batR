@@ -123,7 +123,7 @@ server <- function(input, output, session){
   })
   
   # get innings list for selected player ----
-  selected_player <- select_player_server("select_player", mens_t20_data, womens_t20_data)
+  selected_player <- select_player_server("select_player", con)
   
   
   # computations ----
