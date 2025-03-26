@@ -1,9 +1,11 @@
 #----- Update batR data -----
-# last updated: 11th Feb 2025
+# last updated: 26th March 2025
 library(cricketdata)
 library(dplyr)
+library(duckdb)
 
 tournaments <- cricsheet_codes
+con <- DBI::dbConnect(duckdb(), dbdir = "data/t20_batting_data.duckdb")
 
 #---- save men's ball-by-ball data ----
 mens_t20_tournaments <- tournaments |>
@@ -20,7 +22,9 @@ for(i in mens_t20_tournaments){
   
   male_data <- rbind(male_data, x) 
 }
-saveRDS(male_data, file = "data/mens_ball_by_ball_data.rds")
+
+DBI::dbWriteTable(con, "mens_ball_by_ball_data", male_data)
+
 
 #---- save women's ball-by-ball data ----
 womens_t20_tournaments <- tournaments |>
@@ -37,4 +41,7 @@ for(i in womens_t20_tournaments){
   
   female_data <- rbind(female_data, x)
 }
-saveRDS(female_data, file = "data/womens_ball_by_ball_data.rds")
+
+DBI:dbWriteTable(con, "womens_ball_by_ball_data", female_data)
+
+DBI::dbDisconnect(con)
