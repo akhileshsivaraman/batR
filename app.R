@@ -119,16 +119,20 @@ ui <- page_navbar(
 server <- function(input, output, session){
   
   # navigation & URL manipulation
+  # change the URL when the user moves tab
   observeEvent(input$batR_navigation, {
     # https://stackoverflow.com/questions/70080803/uri-routing-for-shinydashboard-using-shiny-router/70093686#70093686
     client_data <- reactiveValuesToList(session$clientData)
     newURL <- with(client_data, paste0(url_protocol, "//", url_hostname, ":", url_port, url_pathname, "#", input$batR_navigation))
-    updateQueryString(newURL, mode = "replace", session)
-    
-    # other resources:
-    # https://stackoverflow.com/questions/71541259/uri-routing-with-shiny-router-and-navbarpage-in-a-r-shiny-app
-    # https://stackoverflow.com/questions/74852297/uri-routing-with-shiny-router-and-navbarpage-using-secondary-navigation
+    updateQueryString(newURL, mode = "push", session)
   })
+  
+  # change the tab to match the URL
+  
+  
+  # other resources:
+  # https://stackoverflow.com/questions/71541259/uri-routing-with-shiny-router-and-navbarpage-in-a-r-shiny-app
+  # https://stackoverflow.com/questions/74852297/uri-routing-with-shiny-router-and-navbarpage-using-secondary-navigation
   
   # connect to duckdb ----
   con <- DBI::dbConnect(duckdb(), "data/t20_batting_data.duckdb")
