@@ -111,6 +111,14 @@ ui <- page_navbar(
     title = "About",
     value = "About",
     about_UI("about")
+  ),
+  
+  nav_spacer(),
+  nav_item(
+    tags$a(
+      icon("github"),
+      href = "https://github.com/akhileshsivaraman/batR"
+    )
   )
 )
 
