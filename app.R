@@ -84,6 +84,8 @@ source("modules/stats_breakdown.R")
 ui <- page_navbar(
   title = "batR",
   
+  id = "batR_navigation",
+  
   selected = "batR",
   
   useShinyjs(),
@@ -115,6 +117,23 @@ ui <- page_navbar(
 
 #---- server ----
 server <- function(input, output, session){
+  
+  # navigation & URL manipulation
+  # change URL when the user moves tab
+  observeEvent(input$batR_navigation, {
+    client_data <- reactiveValuesToList(session$clientData)
+    newURL <- with(client_data, paste0(url_protocol, "//", url_hostname, ":", url_port, url_pathname, "#", input$batR_navigation))
+    updateQueryString(newURL, mode = "replace", session)
+  })
+  
+  # change the tab to match the URL
+  observe({
+    current_tab <- URLdecode(sub("#", "", session$clientData$url_hash))
+    if(!is.null(current_tab)){
+      nav_select("batR_nvaigation", current_tab)
+    }
+  })
+  
   
   # connect to duckdb ----
   con <- DBI::dbConnect(duckdb(), "data/t20_batting_data.duckdb")
