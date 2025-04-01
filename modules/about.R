@@ -6,7 +6,7 @@ about_UI <- function(id){
     card(
       fill = FALSE,
       card_header(h3("About"), class = "bg-primary"),
-      p("batR is a tool to make analysing batting data from T20 matches easier. All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 11th Feb 2025."),
+      p("batR is a tool to make analysing batting data from T20 matches easier. All you need to do is enter the name of a player in the form initials + surname. The app then calculates summary statistics for the player and plots how that player tends to perform each ball. The data used are up to date as of 25th March 2025."),
       
       tags$hr(style = "margin: 1px"),
       
