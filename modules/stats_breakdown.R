@@ -52,8 +52,6 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
   moduleServer(id, function(input, output, session){
     
     #--- tournament breakdown ---
-    # cache the result too
-    
     observe({
       if(input$stats_breakdown_option == "Tournament"){
         
@@ -109,8 +107,6 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
     
     
     #--- phase breakdown ---
-    # cache result
-    
     observe({
       if(input$stats_breakdown_option == "Phase"){
         
