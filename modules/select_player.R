@@ -60,13 +60,14 @@ select_player_server <- function(id, con){
   moduleServer(id, function(input, output, session){
     
     # get the data for the requested player
-    innings_list <- eventReactive(input$find_data, {
+    innings_list <- reactive({
       find_bbb(player_name = input$player_selected, 
                gender = input$male_or_female,
                con = con,
                with_progress = TRUE
       )
-    })
+    }) |>
+      bindEvent(input$find_data)
     
     
     # render a warning when innings_list is length 0
@@ -89,16 +90,15 @@ select_player_server <- function(id, con){
 
 #---- select_player_app ----
 select_player_app <- function(){
-  con <- DBI::dbConnect(duckdb::duckdb(), "data/t20_batting_data.duckdb")
-  session$onSessionEnded(function(){
-    DBI::dbDisconnect(con)
-  })
-  
   ui <- page_fluid(
     select_player_UI("select_player")
   )
   
   server <- function(input, output, session){
+    con <- DBI::dbConnect(duckdb::duckdb(), "data/t20_batting_data.duckdb")
+    session$onSessionEnded(function(){
+      DBI::dbDisconnect(con)
+    })
     select_player_server("select_player", con)
   }
   
