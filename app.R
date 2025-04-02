@@ -128,11 +128,12 @@ server <- function(input, output, session){
   
   # navigation & URL manipulation
   # change URL when the user moves tab
-  observeEvent(input$batR_navigation, {
+  observe({
     client_data <- reactiveValuesToList(session$clientData)
     newURL <- with(client_data, paste0(url_protocol, "//", url_hostname, ":", url_port, url_pathname, "#", input$batR_navigation))
     updateQueryString(newURL, mode = "replace", session)
-  })
+  }) |>
+    bindEvent(input$batR_navigation)
   
   # change the tab to match the URL
   observe({
