@@ -88,13 +88,18 @@ select_player_server <- function(id, con){
 
 
 #---- select_player_app ----
-select_player_app <- function(mens_t20_data, womens_t20_data){
+select_player_app <- function(){
+  con <- DBI::dbConnect(duckdb::duckdb(), "data/t20_batting_data.duckdb")
+  session$onSessionEnded(function(){
+    DBI::dbDisconnect(con)
+  })
+  
   ui <- page_fluid(
     select_player_UI("select_player")
   )
   
   server <- function(input, output, session){
-    select_player_server("select_player", mens_t20_data, womens_t20_data)
+    select_player_server("select_player", con)
   }
   
   shinyApp(ui, server)
