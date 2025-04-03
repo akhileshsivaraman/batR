@@ -91,7 +91,7 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
             # display tournament summary plot
             incProgress(
               amount = 0.2,
-              message = "Creating plots"
+              detail = "Creating plots"
             )
             output$tournament_summary_plots <- renderPlot({
               par(mfrow = c(ceiling(length(list_metrics_by_tournament_summary())/3), 3))
@@ -132,7 +132,7 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
             # display phase summary plot
             incProgress(
               amount = 0.4,
-              message = "Creating plots"
+              detail = "Creating plots"
             )
             
             output$phase_summary_plots <- renderPlot({
@@ -140,13 +140,11 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
             }) |>
               bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
             
-            
             # display phase summary table
             output$phase_summary_table <- renderTable({
               metrics_by_phase_summary_table()
             }) |>
               bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
-            
             
             incProgress(amount = 0.2)
           }
