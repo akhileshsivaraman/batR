@@ -160,7 +160,8 @@ server <- function(input, output, session){
     if(length(selected_player$innings_list()) > 0){
       career_bbb(selected_player$innings_list(), with_progress = TRUE)
     }
-  })
+  }) |>
+    bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
   
   # mean runs scored and mean SR by ball faced
   ball_by_ball_mean <- reactive({
