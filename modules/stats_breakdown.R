@@ -52,15 +52,13 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
   moduleServer(id, function(input, output, session){
     
     #--- tournament breakdown ---
-    # cache the result too
-    
     observe({
       if(input$stats_breakdown_option == "Tournament"){
         
         withProgress(
           min = 0,
           max = 1,
-          message = paste("Computing stats by tournament for", selected_player$player_name()),
+          message = paste("Computing stats by tournament for", isolate(selected_player$player_name())),
           expr = {
             # compute tournament summary table
             list_metrics_by_tournament_summary <- reactive({
@@ -86,20 +84,22 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
             incProgress(amount = 0.3)
             output$tournament_summary_table <- renderTable({
               metrics_by_tournament_summary_table()
-            })
+            }) |>
+              bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
             
             
             # display tournament summary plot
             incProgress(
               amount = 0.2,
-              message = "Creating plots"
+              detail = "Creating plots"
             )
             output$tournament_summary_plots <- renderPlot({
               par(mfrow = c(ceiling(length(list_metrics_by_tournament_summary())/3), 3))
               for (i in 1:length(list_metrics_by_tournament_summary())){
                 spider_plot(list_metrics_by_tournament_summary()[[i]], player_innings(), title = names(list_metrics_by_tournament_summary()[i]))
               }
-            })
+            }) |>
+              bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
             
             incProgress(amount = 0.1)
           }
@@ -109,15 +109,13 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
     
     
     #--- phase breakdown ---
-    # cache result
-    
     observe({
       if(input$stats_breakdown_option == "Phase"){
         
         withProgress(
           min = 0,
           max = 1,
-          message = paste("Computing stats by phase for", selected_player$player_name()),
+          message = paste("Computing stats by phase for", isolate(selected_player$player_name())),
           expr = {
             # compute phase summary table
             player_bbb_by_phase <- reactive({
@@ -134,19 +132,19 @@ stats_breakdown_server <- function(id, ball_by_ball_data, player_innings, select
             # display phase summary plot
             incProgress(
               amount = 0.4,
-              message = "Creating plots"
+              detail = "Creating plots"
             )
             
             output$phase_summary_plots <- renderPlot({
               spider_plot_by_phase(player_bbb_by_phase(), metrics_by_phase_summary_table())
-            })
-            
+            }) |>
+              bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
             
             # display phase summary table
             output$phase_summary_table <- renderTable({
               metrics_by_phase_summary_table()
-            })
-            
+            }) |>
+              bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
             
             incProgress(amount = 0.2)
           }

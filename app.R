@@ -128,11 +128,12 @@ server <- function(input, output, session){
   
   # navigation & URL manipulation
   # change URL when the user moves tab
-  observeEvent(input$batR_navigation, {
+  observe({
     client_data <- reactiveValuesToList(session$clientData)
     newURL <- with(client_data, paste0(url_protocol, "//", url_hostname, ":", url_port, url_pathname, "#", input$batR_navigation))
     updateQueryString(newURL, mode = "replace", session)
-  })
+  }) |>
+    bindEvent(input$batR_navigation)
   
   # change the tab to match the URL
   observe({
@@ -159,7 +160,8 @@ server <- function(input, output, session){
     if(length(selected_player$innings_list()) > 0){
       career_bbb(selected_player$innings_list(), with_progress = TRUE)
     }
-  })
+  }) |>
+    bindCache(unique(selected_player$innings_list()[[1]][["striker"]]))
   
   # mean runs scored and mean SR by ball faced
   ball_by_ball_mean <- reactive({
