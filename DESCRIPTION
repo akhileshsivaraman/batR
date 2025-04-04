@@ -28,3 +28,4 @@ Imports:
     testthat,
     tibble,
     tidyr
+Config/testthat/edition: 3
