@@ -23,6 +23,8 @@ Imports:
     purrr,
     shiny,
     shinyjs,
+    shinytest2,
     stringr,
+    testthat,
     tibble,
     tidyr
