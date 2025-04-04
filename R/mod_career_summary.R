@@ -1,7 +1,7 @@
 #----- career_summary.R ----
 
 #---- functions ----
-source("functions/spider_plot.R")
+# source("functions/spider_plot.R")
 
 #---- career_summary_UI ----
 career_summary_UI <- function(id){

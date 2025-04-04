@@ -1,7 +1,7 @@
 #----- select_player.R -----
 
 #---- functions ----
-source("functions/find_bbb.R")
+# source("functions/find_bbb.R")
 
 #---- select_player_UI ----
 select_player_UI <- function(id){
