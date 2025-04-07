@@ -42,6 +42,6 @@ for(i in womens_t20_tournaments){
   female_data <- rbind(female_data, x)
 }
 
-DBI:dbWriteTable(con, "womens_ball_by_ball_data", female_data, overwrite = TRUE)
+DBI::dbWriteTable(con, "womens_ball_by_ball_data", female_data, overwrite = TRUE)
 
 DBI::dbDisconnect(con)
