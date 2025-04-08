@@ -5,7 +5,8 @@ account: akhilesh-sivaraman
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8970919
-bundleId: 9782161
+bundleId: 10050930
 url: https://akhilesh-sivaraman.shinyapps.io/batR/
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: data/mens_ball_by_ball_data.rds|data/womens_ball_by_ball_data.rds
