@@ -19,7 +19,6 @@ test_that("the number of observations in the dataframe produced by career_mean_b
   expect_equal(longest_innings, nrow(ball_by_ball_mean))
 })
 
-# test the mean calculations are working? will need to create fake data
 test_that("career_mean_bbb calculates mean scored and mean SR correctly", {
   ball_by_ball_data <- tibble(
     match_id = c("match_1", "match_2", "match_3"),
